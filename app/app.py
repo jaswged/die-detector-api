@@ -26,7 +26,6 @@ async def classify():
     print("Hello world", file=sys.stderr)
     print(" request.json: " +  request.json, file=sys.stderr)
 
-
 @app.route("/form2")
 def form2(request):
     return HTMLResponse(
@@ -46,6 +45,34 @@ def form2(request):
 @app.route("/form")
 def form():
     return render_template('form.html')
+
+
+@app.route("/upload", methods=["POST"])
+async def upload(request):
+    print("Upload called", file=sys.stderr)
+    data = await request.form()
+    bytes = await (data["file"].read())
+    
+    return predict_image_from_bytes(bytes)
+
+def predict_image_from_bytes(bytes):
+    img = open_image(BytesIO(bytes))
+    print("predict image from bytes", file=sys.stderr)
+    print(bytes, file=sys.stderr)
+
+    losses = img.predict(cat_learner)
+
+    pred_class, pred_idx, outputs = MODEL.predict(img)
+    print("predicted class is: " + pred_class, file=sys.stderr)
+
+    return JSONResponse({
+        "predictions": sorted(
+            zip(cat_learner.data.classes, map(float, losses)),
+            key=lambda p: p[1],
+            reverse=True
+        )
+    })
+
 
 @app.route('/api', methods=['GET'])
 def api():
