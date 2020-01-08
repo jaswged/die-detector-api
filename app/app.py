@@ -19,11 +19,13 @@ MODEL = pickle.load(open('dice.pkl', 'rb'))
 
 @app.route('/')
 def docs():
+    print("Root called", file=sys.stderr)
     return render_template('docs.html')
 
 @app.route('/classify')
-async def classify():
+def classify():
     print("Hello world", file=sys.stderr)
+    print("Classify called")
     print(" request.json: " +  request.json, file=sys.stderr)
 
 @app.route("/form2")
@@ -44,16 +46,18 @@ def form2(request):
 
 @app.route("/form")
 def form():
+    print("Form called")
     return render_template('form.html')
 
 
 @app.route("/upload", methods=["POST"])
-async def upload(request):
+async def upload():
     print("Upload called", file=sys.stderr)
     data = await request.form()
     bytes = await (data["file"].read())
     
     return predict_image_from_bytes(bytes)
+
 
 def predict_image_from_bytes(bytes):
     img = open_image(BytesIO(bytes))

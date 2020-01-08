@@ -1,16 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Model API Demo - docs</title>
-  </head>
-  <body>
-    <h3>Upload image to classify</h3>
-  <form method="post" action="/classify">
-    <input type="file" />
-    <input type="submit">Classify</input>
-  </form>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Die Detector API</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  
+</head>
+<body>
+  <h1>Die Detector Api</h1>
+  <h3>Upload image to classify</h3>
+<!-- <form id="dieForm" method="post"> -->
+    <form id="dieForm" action="/classify" method="post" enctype="multipart/form-data">
+  <input type="file" />
+  <input type="submit">Classify</input>
+  <button id="submit_btn">Post with Ajax</button>
+</form>
+<script>
+    $(document).ready(function(){
+      $("#submit_btn").submit(function(e) {
+        alert("Button clicked");
+        console.log("Submit button");
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+
+        var form = $(this);
+        var url = form.attr('action');
+        console.log(url);
+        console.log(form.serialize());
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(), // serializes the form's elements.
+            success: function(data) {
+                alert(data); // show response from the php script.
+            }
+        });
+      });
+    });
+</script>
+</body>
 </html>
