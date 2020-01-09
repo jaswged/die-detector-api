@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request, render_template
 import pickle
 import numpy as np
 import sys
+from werkzeug.utils import secure_filename
 
 # Initialize the app and set a secret_key.
 app = Flask(__name__)
@@ -18,6 +19,20 @@ MODEL = pickle.load(open('dice.pkl', 'rb'))
 def docs():
     print("Root called", file=sys.stderr)
     return render_template('docs.html')
+
+
+@app.route('/upload')
+def upload():
+    return render_template('image.html')
+
+
+@app.route('/uploader', methods=['GET', 'POST'])
+def uploader():
+    if request.method == 'POST':
+        f = request.files['file']
+        f.save(secure_filename(f.filename))
+        return 'file uploaded successfully'
+
 
 @app.route('/classify', methods=["POST"])
 def classify():
@@ -47,9 +62,9 @@ def form():
     return render_template('form.html')
 
 
-@app.route("/upload", methods=["POST"])
-async def upload():
-    print("Upload called", file=sys.stderr)
+@app.route("/uploadStar", methods=["POST"])
+async def upload_star():
+    print("upload_star called", file=sys.stderr)
     data = await request.form()
     print(data)
     bytes = await (data["file"].read())
