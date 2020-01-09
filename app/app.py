@@ -6,6 +6,7 @@ import sys
 from io import BytesIO
 import time
 from fastai.vision import *
+from werkzeug.utils import secure_filename
 
 # Initialize the app and set a secret_key.
 app = Flask(__name__)
@@ -44,6 +45,18 @@ def a():
     print(pred_class)
     return render_template('docs.html')
 
+@app.route('/upload')
+def upload():
+    return render_template('image.html')
+
+
+@app.route('/uploader', methods=['GET', 'POST'])
+def uploader():
+    if request.method == 'POST':
+        f = request.files['file']
+        f.save(secure_filename(f.filename))
+        return 'file uploaded successfully'
+
 
 @app.route('/classify', methods=["POST"])
 async def classify(request):
@@ -51,7 +64,10 @@ async def classify(request):
     print("Classify called")
     print(request.json, file=sys.stderr)
 
-    # Get Request Form data
+
+@app.route("/uploadStar", methods=["POST"])
+async def upload_star():
+    print("upload_star called", file=sys.stderr)
     data = await request.form()
     # request.form()
     print(data)
