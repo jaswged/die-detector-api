@@ -6,9 +6,6 @@ import pickle
 import numpy as np
 import sys
 
-# Import from model_api/app/features.py.
-# from features import FEATURES
-
 # Initialize the app and set a secret_key.
 app = Flask(__name__)
 app.secret_key = 'something_secret'
@@ -22,11 +19,11 @@ def docs():
     print("Root called", file=sys.stderr)
     return render_template('docs.html')
 
-@app.route('/classify')
+@app.route('/classify', methods=["POST"])
 def classify():
     print("Hello world", file=sys.stderr)
     print("Classify called")
-    print(" request.json: " +  request.json, file=sys.stderr)
+    print(request.json, file=sys.stderr)
 
 @app.route("/form2")
 def form2(request):
@@ -54,8 +51,9 @@ def form():
 async def upload():
     print("Upload called", file=sys.stderr)
     data = await request.form()
+    print(data)
     bytes = await (data["file"].read())
-    
+    print(bytes)
     return predict_image_from_bytes(bytes)
 
 
