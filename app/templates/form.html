@@ -10,27 +10,27 @@
 <body>
   <h1>Die Detector Api</h1>
   <h3>Upload image to classify</h3>
-<form id="dieForm" action="/classify" method="post" enctype="multipart/form-data">
-  <input type="file" />
-  <input type="submit">Classify</input>
-  <button type="button" id="submit_btn">Post with Ajax</button>
-  <button type="button" id="upload_btn">Upload method</button>
-</form>
+  <form id="dieForm" action="/classify" method="post" enctype="multipart/form-data">
+    <input type="file" id="img"/>
+    <button type="submit">Submit</button>
+    <button type="button" id="submit_btn">Classify</button>
+    <button type="button" id="upload_btn">Upload method</button>
+  </form>
 <script>
     $(document).ready(function(){
       $("#submit_btn").click(function(e) {
         e.preventDefault(); // avoid to execute the actual submit of the form.
         console.log("Submit button");
 
-        var form = $(this);
-        var url = '/classify';
-        console.log("url is: " + url);
-        console.log(form.serialize());
+        let img = $("#img");
+        const url = '/classify';
+        console.log("form is: " + img);
+        console.log(img.serialize());
 
         $.ajax({
             type: "POST",
             url: url,
-            data: form.serialize(), // serializes the form's elements.
+            data: img.serialize(), // serializes the form's elements.
             success: function(data) {
                 alert(data); // show response from the php script.
             },
