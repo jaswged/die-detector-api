@@ -45,6 +45,7 @@ def a():
     print(pred_class)
     return render_template('docs.html')
 
+
 @app.route('/upload')
 def upload():
     return render_template('image.html')
@@ -54,8 +55,36 @@ def upload():
 def uploader():
     if request.method == 'POST':
         f = request.files['file']
-        f.save(secure_filename(f.filename))
-        return 'file uploaded successfully'
+        print(f)
+        print("type of f is:")
+        print(type(f))
+        # f.save(secure_filename(f.filename))
+
+        #img_bytes = data['file'].read()
+        img_bytes = f
+        print(img_bytes.content_type)
+        print(img_bytes.content_length)
+        print(img_bytes, file=sys.stderr)
+        print('Attempt to open image', file=sys.stderr)
+
+        bytes = f.read()
+        print("bytes")
+        print(bytes)
+        print(type(bytes))
+
+        stream = img_bytes.stream
+        print('stream type is:')
+        print(type(stream))
+        print(stream)
+        img = open_image(BytesIO(bytes))
+
+        pred_class, pred_idx, outputs = learn.predict(img)
+        print(pred_class, file=sys.stderr)
+        print(pred_class)
+        print(outputs)
+        print(pred_idx)
+        return str(pred_class)
+        #return jsonify(outputs)
 
 
 @app.route('/classify', methods=["POST"])
