@@ -51,10 +51,9 @@
             el('analyze-button').innerHTML = 'Analyzing...';
             let xhr = new XMLHttpRequest();
             var loc = window.location;
-            xhr.setRequestHeader("Content-Type", "multipart/form-data");
-            xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/uploader`, true);
+            //xhr.setRequestHeader("Content-Type", "multipart/form-data");
 
-            //xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/analyze`, true);
+            xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/uploader`, true);
 
             xhr.onreadystatechange = function() { // Call a function when the state changes.
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
@@ -87,21 +86,57 @@
 
         function ajax_analyze() {
             $("#ajax-button").innerHTML = 'Ajax Analyzing...';
-            const form = $("#uploadForm");
+            //const form = $("#uploadForm");
+
+            var form = $('#uploadForm')[0];
+            var data = new FormData(form);
 
             $.ajax({
                 type: "POST",
-                url: '/uploader',
-                data: form.serialize(), // serializes the form's elements.
-                success: function(data) {
+                enctype: 'multipart/form-data',
+                url: "/uploader",
+                data: data,
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                success:function(data){
+                    alert("worked");
                     console.log(data);
-                    alert(data); // show response from the py script.
                 },
                 error: function(data){
-                  console.log("Error calling endpoint");
-                  console.log(data);
+                    alert("Error");
+                    console.log(data);
                 }
             });
+
+            // $.ajax({
+            //     url:'/uploader',
+            //     type:'post',
+            //     data:$('#myForm').serialize(),
+            //     success:function(data){
+            //         alert("worked");
+            //         console.log(data);
+            //     },
+            //     error: function(data){
+            //         alert("Error");
+            //         console.log(data);
+            //     }
+            // });
+
+            // $.ajax({
+            //     type: "POST",
+            //     url: '/uploader',
+            //     data: form.serialize(), // serializes the form's elements.
+            //     success: function(data) {
+            //         console.log(data);
+            //         alert(data); // show response from the py script.
+            //     },
+            //     error: function(data){
+            //       console.log("Error calling endpoint");
+            //       console.log(data);
+            //     }
+            // });
         }
     </script>
     <style>
