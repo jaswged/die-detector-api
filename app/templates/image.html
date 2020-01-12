@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <title>Die Detector API</title>
 </head>
 
@@ -21,6 +22,7 @@
             <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
         </div>
         <button id='analyze-button' class='analyze-button'>Analyze</button>
+        <button id='ajax-button' class='analyze-button' type='button'>Ajax Button</button>
     </form>
     <script>
         // From FastAi
@@ -67,6 +69,14 @@
             fileData.append('file', uploadFiles[0]);
             xhr.send(fileData);
         }
+
+        $(document).ready(function(){
+            $("#ajax-button").click(function(e) {
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+                console.log("Submit button");
+                alert('ajax button');
+            });
+        });
     </script>
     <style>
         body {
