@@ -9,6 +9,9 @@
 </head>
 
 <body>
+    <div style="height: 100%">
+        <img src="/static/die-detector-api.png" height="310" width="300" style="float: left"/>
+    </div>
     <h1 class="center">Die Detector Api</h1>
     <h3 class="center">Upload image to classify</h3>
     <form id="uploadForm" action="/uploader" method="POST" enctype="multipart/form-data">
@@ -22,6 +25,7 @@
             <div>
                 <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
             </div>
+            <h2 id="diePrediction">Die Detected: </h2>
             <button id='submit-button' class='analyze-button'>Submit</button>
             <button id='analyze-button' class='analyze-button' type='button' onclick="analyze()">Analyze</button>
             <button id='ajax-button' class='analyze-button' type='button' onclick="ajax_analyze()">Ajax Button</button>
@@ -86,7 +90,6 @@
 
         function ajax_analyze() {
             $("#ajax-button").innerHTML = 'Ajax Analyzing...';
-            //const form = $("#uploadForm");
 
             var form = $('#uploadForm')[0];
             var data = new FormData(form);
@@ -101,42 +104,13 @@
                 cache: false,
                 timeout: 600000,
                 success:function(data){
-                    alert("worked");
+                    $("#diePrediction").text("Die Detected: " + data);
                     console.log(data);
                 },
                 error: function(data){
-                    alert("Error");
                     console.log(data);
                 }
             });
-
-            // $.ajax({
-            //     url:'/uploader',
-            //     type:'post',
-            //     data:$('#myForm').serialize(),
-            //     success:function(data){
-            //         alert("worked");
-            //         console.log(data);
-            //     },
-            //     error: function(data){
-            //         alert("Error");
-            //         console.log(data);
-            //     }
-            // });
-
-            // $.ajax({
-            //     type: "POST",
-            //     url: '/uploader',
-            //     data: form.serialize(), // serializes the form's elements.
-            //     success: function(data) {
-            //         console.log(data);
-            //         alert(data); // show response from the py script.
-            //     },
-            //     error: function(data){
-            //       console.log("Error calling endpoint");
-            //       console.log(data);
-            //     }
-            // });
         }
     </script>
     <style>
