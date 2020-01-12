@@ -3,33 +3,38 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="static/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
     <title>Die Detector API</title>
 </head>
 
 <body>
-    <div style="height: 100%">
-        <img src="/static/die-detector-api.png" height="310" width="300" style="float: left"/>
+    <div class="header">
+        <img style="float:left;" src="/static/die-detector-api.png" height="115"/>
+        <h1 style="padding-top: 15px;" class="center">Die Detector Api</h1>
     </div>
-    <h1 class="center">Die Detector Api</h1>
-    <h3 class="center">Upload image to classify</h3>
-    <form id="uploadForm" action="/uploader" method="POST" enctype="multipart/form-data">
-        <div class="center">
-            <input id='file-input' class='no-display' type="file" name="file" accept='image/*'
-                onchange='showPicked(this)' />
-            <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
-            <div class='upload-label'>
-                <label id='upload-label'>No file chosen</label>
+
+    <div class="content">
+        <form id="uploadForm" action="/uploader" method="POST" enctype="multipart/form-data">
+            <h3 class="center">Upload image to classify</h3>
+            <div class="center">
+                <input id='file-input' class='no-display' type="file" name="file" accept='image/*'
+                    onchange='showPicked(this)' />
+                <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
+                <div class='upload-label'>
+                    <label id='upload-label'>No file chosen</label>
+                </div>
+                <div>
+                    <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
+                </div>
+                <h2 id="diePrediction" class="result-label">Die Detected: </h2>
+                <button id='analyze-button' class='analyze-button' type='button' onclick="analyze()">Analyze</button>
             </div>
-            <div>
-                <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
-            </div>
-            <h2 id="diePrediction">Die Detected: </h2>
-            <button id='analyze-button' class='analyze-button' type='button' onclick="analyze()">Ajax Button</button>
-        </div>
-    </form>
+        </form>
+    </div>
+    <div class="footer center">
+      <p id="copyright">©</p>
+    </div>
     <script>
         // From FastAi
         const el = x => document.getElementById(x);
@@ -73,10 +78,16 @@
                 }
             });
         }
+        $( document ).ready(function() {
+            const year = new Date().getFullYear();
+            $("#copyright").text('© ' + year + ' — Jason Gedamke. All Rights Reserved');
+        });
     </script>
     <style>
         body {
             background-color: #fff;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         .no-display {
@@ -91,19 +102,14 @@
             text-align: center;
         }
 
-        .analyze {
-            margin-top: 5em;
-        }
-
         .upload-label {
             padding: 10px;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .result-label {
             margin-top: 0.5em;
             padding: 10px;
-            font-size: 13px;
         }
 
         button.choose-file-button {
@@ -112,7 +118,7 @@
             border-radius: 2px;
             background-color: #ffffff;
             border: solid 1px #f40e38;
-            font-size: 13px;
+            font-size: 15px;
             color: #e82e50;
         }
 
@@ -122,12 +128,28 @@
             border: solid 1px #f40e38;
             border-radius: 2px;
             background-color: #f40e38;
-            font-size: 13px;
+            font-size: 15px;
             color: #ffffff;
         }
 
         button:focus {
             outline: 0;
+        }
+
+        * {
+          box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .header{
+            overflow: hidden;
+            background-color: #aaa;
+            height: 115px;
+            position: relative;
+        }
+
+        .footer{
+            padding: 10px;
         }
     </style>
 </body>
