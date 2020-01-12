@@ -13,12 +13,7 @@
 
       <div class='content'>
         <div class='no-display'>
-            <input id='file-input'
-                   class='no-display'
-                   type='file'
-                   name='file'
-                   accept='image/*'
-                   onchange='showPicked(this)'>
+            <input id='file-input' class='no-display' type='file' name='file' accept='image/*' onchange='showPicked(this)'>
         </div>
         <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
         <div class='upload-label'>
@@ -80,5 +75,67 @@
       xhr.send(fileData);
     }
 </script>
+<style>
+body {
+    background-color: #fff;
+}
+
+.no-display {
+    display: none;
+}
+
+.center {
+    margin: auto;
+    padding: 10px;
+    padding-left:50px;
+    padding-right:50px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.title {
+    font-size: 30px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    color: #262626;
+}
+
+.analyze {
+    margin-top: 5em;
+}
+
+.upload-label {
+    padding: 10px;
+    font-size: 12px;
+}
+
+.result-label {
+    margin-top: 0.5em;
+    padding: 10px;
+    font-size: 13px;
+}
+
+button.choose-file-button {
+  width: 200px;
+  height: 40px;
+  border-radius: 2px;
+  background-color: #ffffff;
+  border: solid 1px #f40e38;
+  font-size: 13px;
+  color: #e82e50;
+}
+
+button.analyze-button {
+    width: 200px;
+    height: 40px;
+    border: solid 1px #f40e38;
+    border-radius: 2px;
+    background-color: #f40e38;
+    font-size: 13px;
+    color: #ffffff;
+}
+
+button:focus {outline:0;}
+</style>
 </body>
 </html>

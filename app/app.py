@@ -1,12 +1,7 @@
 # Common python package imports.
 from flask import Flask, jsonify, request, render_template
-import pickle
-import numpy as np
-import sys
-from io import BytesIO
 import time
 from fastai.vision import *
-from werkzeug.utils import secure_filename
 
 # Initialize the app and set a secret_key.
 app = Flask(__name__)
