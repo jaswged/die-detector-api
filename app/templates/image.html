@@ -9,74 +9,100 @@
 </head>
 
 <body>
-    <h1>Die Detector Api</h1>
-    <h3>Upload image to classify</h3>
-    <form action="/uploader" method="POST" enctype="multipart/form-data">
-        <input id='file-input' class='no-display' type="file" name="file" accept='image/*'
-            onchange='showPicked(this)' />
-        <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
-        <div class='upload-label'>
-            <label id='upload-label'>No file chosen</label>
+    <h1 class="center">Die Detector Api</h1>
+    <h3 class="center">Upload image to classify</h3>
+    <form id="uploadForm" action="/uploader" method="POST" enctype="multipart/form-data">
+        <div class="center">
+            <input id='file-input' class='no-display' type="file" name="file" accept='image/*'
+                onchange='showPicked(this)' />
+            <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
+            <div class='upload-label'>
+                <label id='upload-label'>No file chosen</label>
+            </div>
+            <div>
+                <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
+            </div>
+            <button id='submit-button' class='analyze-button'>Submit</button>
+            <button id='analyze-button' class='analyze-button' type='button' onclick="analyze()">Analyze</button>
+            <button id='ajax-button' class='analyze-button' type='button' onclick="ajax_analyze()">Ajax Button</button>
         </div>
-        <div>
-            <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
-        </div>
-        <button id='analyze-button' class='analyze-button'>Analyze</button>
-        <button id='ajax-button' class='analyze-button' type='button'>Ajax Button</button>
     </form>
     <script>
         // From FastAi
-        var el = x => document.getElementById(x);
+        const el = x => document.getElementById(x);
 
-        function showPicker(inputId) { el('file-input').click(); }
+        function showPicker() { el('file-input').click(); }
 
         function showPicked(input) {
             el('upload-label').innerHTML = input.files[0].name;
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onload = function (e) {
                 el('image-picked').src = e.target.result;
                 el('image-picked').className = '';
-            }
+            };
             reader.readAsDataURL(input.files[0]);
         }
 
         function analyze() {
             console.log("Analyze!");
-            var uploadFiles = el('file-input').files;
+            const uploadFiles = el('file-input').files;
             if (uploadFiles.length != 1) alert('Please select 1 file to analyze!');
 
             el('analyze-button').innerHTML = 'Analyzing...';
-            var xhr = new XMLHttpRequest();
-            console.log(xhr);
+            let xhr = new XMLHttpRequest();
             var loc = window.location;
-            console.log("loc: " + loc);
-            console.log(`${loc.protocol}`);
-            console.log(`${loc.hostname}`);
-            xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/analyze`, true);
+            xhr.setRequestHeader("Content-Type", "multipart/form-data");
+            xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/uploader`, true);
 
-            console.log(xhr.responseText);
+            //xhr.open('POST', `${loc.protocol}//${loc.hostname}:${loc.port}/analyze`, true);
+
+            xhr.onreadystatechange = function() { // Call a function when the state changes.
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    // Request finished. Do processing here.
+                    console.log("request finished");
+
+                    console.log("Response text below");
+                    console.log(xhr.responseType);
+                    console.log(xhr.responseText);
+                    console.log(xhr.response);
+                    console.log(xhr.responseXML);
+                }
+            }
 
             xhr.onerror = function () { alert(xhr.responseText); }
             xhr.onload = function (e) {
                 if (this.readyState === 4) {
+                    console.log("Ready state is 4");
                     var response = JSON.parse(e.target.responseText);
                     el('result-label').innerHTML = `Result = ${response['result']}`;
                 }
                 el('analyze-button').innerHTML = 'Analyze';
             };
 
-            var fileData = new FormData();
+            console.log("New form data");
+            let fileData = new FormData();
             fileData.append('file', uploadFiles[0]);
             xhr.send(fileData);
         }
 
-        $(document).ready(function(){
-            $("#ajax-button").click(function(e) {
-                e.preventDefault(); // avoid to execute the actual submit of the form.
-                console.log("Submit button");
-                alert('ajax button');
+        function ajax_analyze() {
+            $("#ajax-button").innerHTML = 'Ajax Analyzing...';
+            const form = $("#uploadForm");
+
+            $.ajax({
+                type: "POST",
+                url: '/uploader',
+                data: form.serialize(), // serializes the form's elements.
+                success: function(data) {
+                    console.log(data);
+                    alert(data); // show response from the py script.
+                },
+                error: function(data){
+                  console.log("Error calling endpoint");
+                  console.log(data);
+                }
             });
-        });
+        }
     </script>
     <style>
         body {
@@ -93,14 +119,6 @@
             padding-left: 50px;
             padding-right: 50px;
             text-align: center;
-            font-size: 14px;
-        }
-
-        .title {
-            font-size: 30px;
-            margin-top: 1em;
-            margin-bottom: 1em;
-            color: #262626;
         }
 
         .analyze {

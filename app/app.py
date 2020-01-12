@@ -1,6 +1,5 @@
 # Common python package imports.
 from flask import Flask, jsonify, request, render_template
-import time
 from fastai.vision import *
 
 # Initialize the app and set a secret_key.
@@ -16,7 +15,6 @@ learn = load_learner(path, file='dice.pkl')
 
 @app.route('/')
 def docs():
-    print("Root called", file=sys.stderr)
     return render_template('docs.html')
 
 
@@ -61,9 +59,9 @@ def uploader():
 
         pred_class, pred_idx, outputs = learn.predict(img)
         print(pred_class, file=sys.stderr)
-        print(pred_class)
         print(outputs)
         print(pred_idx)
+        print('Returning: ' + str(pred_class))
         return str(pred_class)
         #return jsonify(outputs)
 
