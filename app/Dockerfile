@@ -10,6 +10,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN ls -l
+RUN pip install --no-cache-dir fastai==1.0.60
 
 # Expose port
 EXPOSE 5000
