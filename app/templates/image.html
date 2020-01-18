@@ -16,10 +16,9 @@
 
     <div class="content">
         <form id="uploadForm" action="/uploader" method="POST" enctype="multipart/form-data">
-            <h3 class="center">Upload image to classify</h3>
             <div class="center">
-                <input id='file-input' class='no-display' type="file" name="file" accept='image/*'
-                    onchange='showPicked(this)' />
+                <h3 class="center">Upload image to classify</h3>
+                <input id='file-input' class='no-display' type="file" name="file" accept='image/*' onchange='showPicked(this)'/>
                 <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
                 <div class='upload-label'>
                     <label id='upload-label'>No file chosen</label>
@@ -36,7 +35,6 @@
       <p id="copyright">©</p>
     </div>
     <script>
-        // From FastAi
         const el = x => document.getElementById(x);
 
         function showPicker() { el('file-input').click(); }
@@ -47,7 +45,7 @@
             el('upload-label').innerHTML = file.name;
 
             if(!file.type.match(/image.*/)) {
-                console.log("Not an image");
+                alert("Not an image");
                 return;
             }
 
@@ -57,68 +55,44 @@
                 el('image-picked').src = e.target.result;
                 el('image-picked').className = '';
 
-                console.log("Resize the image");
-                file.image().then(img => {
-                    print("is image");
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const maxWidth = 320;
-                    const maxHeight = 240;
-                });
+                // from SO
+                let image = new Image();
+                image.onload=function(){
+                  let canvas = document.createElement("canvas");
+                  let context = canvas.getContext("2d");
+
+                  const maxWidth = 341;
+                  const maxHeight = 256;
+                  const ratio = Math.min(maxWidth / image.width, maxHeight / image.height);
+                  canvas.width = image.width * ratio + .5|0;
+                  canvas.height = image.height * ratio + .5|0;
+                  context.drawImage(image,0,0,image.width,image.height,0,0,canvas.width,canvas.height);
+
+                  // Get the binary (aka blob)
+                  canvas.toBlob(blob => {
+                      console.log("blob data");
+                      console.log(blob);
+                    const resizedFile = new File([blob], file.name, file);
+                    const fileList = new FileListItem(resizedFile);
+
+                    // remove event listener as assigning a new filelist will trigger a new event
+                    //$(this).onchange = null;
+                    $(this).files = fileList;
+                    //$(this).onchange = showPicked;
+                  });
+                };
             };
-            reader.readAsDataURL(input.files[0]);
+
+            // Load files into file reader
+            reader.readAsDataURL(file);
         }
-
-//https://jsfiddle.net/f2oungs3/3/
-//https://hacks.mozilla.org/2011/01/how-to-develop-a-html5-image-uploader/
-//https://embed.plnkr.co/plunk/v5JU2v
-//https://stackoverflow.com/questions/23945494/use-html5-to-resize-an-image-before-upload
-//https://stackoverflow.com/questions/10333971/html5-pre-resize-images-before-uploading
-
-        /*fileInput.onchange = function change() {
-            const file = this.files[0];
-            if (!file) return;
-        
-            file.image().then(img => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const maxWidth = 320;
-                const maxHeight = 240;
-                
-                // calculate new size
-                const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
-                const width = img.width * ratio + .5|0;
-                const height = img.height * ratio + .5|0;
-                
-                // resize the canvas to the new dimensions
-                canvas.width = width;
-                canvas.height = height;
-                
-                // scale & draw the image onto the canvas
-                ctx.drawImage(img, 0, 0, width, height);
-                document.body.appendChild(canvas);
-                
-                // Get the binary (aka blob)
-                canvas.toBlob(blob => {
-                    const resizedFile = new File([blob], file.name, file)
-                    const fileList = new FileListItem(resizedFile)
-                    
-                    // temporary remove event listener since
-                    // assigning a new filelist to the input
-                    // will trigger a new change event...
-                    fileInput.onchange = null
-                    fileInput.files = fileList
-                    fileInput.onchange = change
-                })
-            });
-        }*/
 
         function analyze() {
             el('analyze-button').innerHTML = 'Analyzing...';
+            const form = $('#uploadForm')[0];
+            const data = new FormData(form);
 
-            var form = $('#uploadForm')[0];
-            var data = new FormData(form);
-
+            // Submit the form
             $.ajax({
                 type: "POST",
                 enctype: 'multipart/form-data',
@@ -130,7 +104,7 @@
                 timeout: 600000,
                 success:function(data){
                     $("#diePrediction").text("Die Detected: " + data);
-                    console.log(data);
+                    console.log("Die Detected: " + data);
                     el('analyze-button').innerHTML = 'Analyze';
                 },
                 error: function(data){
@@ -139,6 +113,15 @@
                 }
             });
         }
+
+        function FileListItem(a) {
+          a = [].slice.call(Array.isArray(a) ? a : arguments);
+          for (var c, b = c = a.length, d = !0; b-- && d;) d = a[b] instanceof File;
+          if (!d) throw new TypeError("expected argument to FileList is File or array of File objects");
+          for (b = (new ClipboardEvent("")).clipboardData || new DataTransfer; c--;) b.items.add(a[c]);
+          return b.files;
+        }
+
         $( document ).ready(function() {
             const year = new Date().getFullYear();
             $("#copyright").text('© ' + year + ' — Jason Gedamke. All Rights Reserved');
@@ -157,9 +140,7 @@
 
         .center {
             margin: auto;
-            padding: 10px;
-            padding-left: 50px;
-            padding-right: 50px;
+            padding: 10px 50px;
             text-align: center;
         }
 
@@ -214,5 +195,4 @@
         }
     </style>
 </body>
-
 </html>
