@@ -32,6 +32,8 @@ def uploader():
 
         pred_class, pred_idx, outputs = learn.predict(img)
         print('Returning: ' + str(pred_class), file=sys.stderr)
+        print('Index: ' + str(pred_idx))
+        print('Returning: ' + str(outputs))
         return str(pred_class)
 
 
