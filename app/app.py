@@ -8,7 +8,6 @@ app.secret_key = 'something_secret'
 
 # Load the pickled model.
 defaults.device = torch.device('cpu')
-MODEL = pickle.load(open('dice.pkl', 'rb'))
 path = '.'
 learn = load_learner(path, file='dice.pkl')
 
@@ -33,7 +32,7 @@ def uploader():
         pred_class, pred_idx, outputs = learn.predict(img)
         print('Returning: ' + str(pred_class), file=sys.stderr)
         print('Index: ' + str(pred_idx))
-        print('Returning: ' + str(outputs))
+        print('Outputs: ' + str(outputs))
         return str(pred_class)
 
 
