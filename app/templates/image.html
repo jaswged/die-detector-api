@@ -6,25 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="static/jquery.min.js"></script>
     <title>Die Detector API</title>
+    <link rel="stylesheet" type="text/css" href="/static/theme.css"/>
+    <link rel="icon" href="/static/die-detector-api-favicon.png" type="image/x-icon" />
 </head>
 
 <body>
     <div class="header">
-        <img style="float:left;" src="/static/die-detector-api.png" height="115"/>
+        <img style="float:left;" src="/static/die-detector-api.png" height="115" alt="Die-detector-api Logo"/>
         <h1 style="padding-top: 15px;" class="center">Die Detector Api</h1>
     </div>
 
-    <div class="content">
+    <div class="content center">
+        <div>
+            <h3>Upload image to classify</h3>
+            <input id='file-input' class='no-display' type="file" name="file-input" accept='image/*'
+                   onchange='showPicked(this)'/>
+            <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
+        </div>
         <form id="uploadForm" action="/uploader" method="POST" enctype="multipart/form-data">
             <div class="center">
-                <h3 class="center">Upload image to classify</h3>
-                <input id='file-input' class='no-display' type="file" name="file" accept='image/*' onchange='showPicked(this)'/>
-                <button class='choose-file-button' type='button' onclick='showPicker()'>Select Image</button>
                 <div class='upload-label'>
                     <label id='upload-label'>No file chosen</label>
                 </div>
                 <div>
                     <img id='image-picked' class='no-display' alt='Chosen Image' height='200'>
+                    <canvas id="canvas" class='no-display'></canvas>
                 </div>
                 <h2 id="diePrediction" class="result-label">Die Detected: </h2>
                 <button id='analyze-button' class='analyze-button' type='button' onclick="analyze()">Analyze</button>
@@ -32,167 +38,108 @@
         </form>
     </div>
     <div class="footer center">
-      <p id="copyright">©</p>
+        <p id="copyright">©</p>
     </div>
-    <script>
-        const el = x => document.getElementById(x);
+<script>
+    const el = x => document.getElementById(x);
 
-        function showPicker() { el('file-input').click(); }
+    function showPicker() {
+        el('file-input').click();
+    }
 
-        function showPicked(input) {
-            $("#diePrediction").text("Die Detected: ");
-            let file = input.files[0];
-            el('upload-label').innerHTML = file.name;
+    function showPicked(input) {
+        $("#diePrediction").text("Die Detected: ");
+        let file = input.files[0];
 
-            if(!file.type.match(/image.*/)) {
-                alert("Not an image");
-                return;
+        if (!file.type.match(/image.*/)) {
+            alert("Not an image");
+            return;
+        }
+
+        // Show picture preview and file name
+        el('upload-label').innerHTML = file.name;
+        let imag = document.getElementById("image-picked");
+        imag.src = window.URL.createObjectURL(file);
+        imag.className = '';
+
+        // Shrink image and store in hidden canvas
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        const maxWidth = 341;
+        const maxHeight = 256;
+
+        let img = new Image;
+        img.onload = function () {
+            let imageWidth = img.width;
+            let imageHeight = img.height;
+            let scale = Math.min((maxHeight / imageHeight), (maxWidth / imageWidth));
+            let imageWidthScaled = imageWidth * scale;
+            let imageHeightScaled = imageHeight * scale;
+            canvas.width = imageWidthScaled;
+            canvas.height = imageHeightScaled;
+            ctx.drawImage(img, 0, 0, imageWidthScaled, imageHeightScaled);
+        };
+        img.src = URL.createObjectURL(file);
+    }
+
+    function analyze() {
+        el('analyze-button').innerHTML = 'Analyzing...';
+        const form = $('#uploadForm')[0];
+        const data = new FormData(form);
+
+        // Add shrunken image to form data
+        let canvasE = document.getElementById('canvas');
+        let dataUrl = canvasE.toDataURL('image/jpeg');
+        let resizedImageBlob = dataURItoBlob(dataUrl);
+        data.append('file', resizedImageBlob);
+
+        // Submit the form
+        $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: "/uploader",
+            data: data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                $("#diePrediction").text("Die Detected: " + data);
+                console.log("Die Detected: " + data);
+                el('analyze-button').innerHTML = 'Analyze';
+            },
+            error: function (data) {
+                console.log("Error happened: " + data.statusText);
+                console.log(data);
+                el('analyze-button').innerHTML = 'Analyze';
             }
-
-            // Show picture preview
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                el('image-picked').src = e.target.result;
-                el('image-picked').className = '';
-
-                // from SO
-                let image = new Image();
-                image.onload=function(){
-                  let canvas = document.createElement("canvas");
-                  let context = canvas.getContext("2d");
-
-                  const maxWidth = 341;
-                  const maxHeight = 256;
-                  const ratio = Math.min(maxWidth / image.width, maxHeight / image.height);
-                  canvas.width = image.width * ratio + .5|0;
-                  canvas.height = image.height * ratio + .5|0;
-                  context.drawImage(image,0,0,image.width,image.height,0,0,canvas.width,canvas.height);
-
-                  // Get the binary (aka blob)
-                  canvas.toBlob(blob => {
-                      console.log("blob data");
-                      console.log(blob);
-                    const resizedFile = new File([blob], file.name, file);
-                    const fileList = new FileListItem(resizedFile);
-
-                    // remove event listener as assigning a new filelist will trigger a new event
-                    //$(this).onchange = null;
-                    $(this).files = fileList;
-                    //$(this).onchange = showPicked;
-                  });
-                };
-            };
-
-            // Load files into file reader
-            reader.readAsDataURL(file);
-        }
-
-        function analyze() {
-            el('analyze-button').innerHTML = 'Analyzing...';
-            const form = $('#uploadForm')[0];
-            const data = new FormData(form);
-
-            // Submit the form
-            $.ajax({
-                type: "POST",
-                enctype: 'multipart/form-data',
-                url: "/uploader",
-                data: data,
-                processData: false,
-                contentType: false,
-                cache: false,
-                timeout: 600000,
-                success:function(data){
-                    $("#diePrediction").text("Die Detected: " + data);
-                    console.log("Die Detected: " + data);
-                    el('analyze-button').innerHTML = 'Analyze';
-                },
-                error: function(data){
-                    console.log(data);
-                    el('analyze-button').innerHTML = 'Analyze';
-                }
-            });
-        }
-
-        function FileListItem(a) {
-          a = [].slice.call(Array.isArray(a) ? a : arguments);
-          for (var c, b = c = a.length, d = !0; b-- && d;) d = a[b] instanceof File;
-          if (!d) throw new TypeError("expected argument to FileList is File or array of File objects");
-          for (b = (new ClipboardEvent("")).clipboardData || new DataTransfer; c--;) b.items.add(a[c]);
-          return b.files;
-        }
-
-        $( document ).ready(function() {
-            const year = new Date().getFullYear();
-            $("#copyright").text('© ' + year + ' — Jason Gedamke. All Rights Reserved');
         });
-    </script>
-    <style>
-        body {
-            background-color: #fff;
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
+    }
+
+    function dataURItoBlob(dataURI) {
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        let byteString;
+        if (dataURI.split(',')[0].indexOf('base64') >= 0)
+            byteString = atob(dataURI.split(',')[1]);
+        else
+            byteString = unescape(dataURI.split(',')[1]);
+
+        // separate out the mime component
+        let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+        // write the bytes of the string to a typed array
+        let ia = new Uint8Array(byteString.length);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
         }
 
-        .no-display {
-            display: none;
-        }
+        return new Blob([ia], {type: mimeString});
+    }
 
-        .center {
-            margin: auto;
-            padding: 10px 50px;
-            text-align: center;
-        }
-
-        .upload-label {
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .result-label {
-            margin-top: 0.5em;
-            padding: 10px;
-        }
-
-        button.choose-file-button {
-            width: 200px;
-            height: 40px;
-            border-radius: 2px;
-            background-color: #ffffff;
-            border: solid 1px #f40e38;
-            font-size: 15px;
-            color: #e82e50;
-        }
-
-        button.analyze-button {
-            width: 200px;
-            height: 40px;
-            border: solid 1px #f40e38;
-            border-radius: 2px;
-            background-color: #f40e38;
-            font-size: 15px;
-            color: #ffffff;
-        }
-
-        button:focus {
-            outline: 0;
-        }
-
-        * {
-          box-sizing: border-box;
-          font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .header{
-            overflow: hidden;
-            background-color: #aaa;
-            height: 115px;
-            position: relative;
-        }
-
-        .footer{
-            padding: 10px;
-        }
-    </style>
+    $(document).ready(function () {
+        const year = new Date().getFullYear();
+        $("#copyright").text('© ' + year + ' — Jason Gedamke. All Rights Reserved');
+    });
+</script>
 </body>
 </html>
