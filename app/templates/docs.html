@@ -1,22 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Die Detector API</title>
-  </head>
-  <body>
-  <img style="float:left" src="/static/die-detector-api.png" height="450" width="450"/>
-  <div style="margin-left: 15px">
+    <link rel="stylesheet" type="text/css" href="/static/theme.css"/>
+    <link rel="icon" href="/static/die-detector-api-favicon.png" type="image/x-icon"/>
+    <script src="static/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="header">
+    <a href="/">
+        <img style="float:left;" src="/static/die-detector-api.png" height="115" alt="Die-detector-api Logo"/>
+    </a>
+    <h1 style="padding-top: 15px;" class="center">Die Detector Api</h1>
+    <p style="display:block;float:right;">v1.0.2</p>
+</div>
+<img style="float:left; margin-right: 15px" src="/static/die-detector-api.png" height="450" width="450"
+     alt="Die Detector Api Logo"/>
+<div style="margin-left: 15px">
     <h1>Die Detector API</h1>
     <h2>Documentation</h2>
     <p>The die detector API receives an image file in the following formats:</p>
     <ul>
-      <li>jpg</li>
-      <li>png</li>
+        <li>jpg</li>
+        <li>png</li>
     </ul>
     <p>The die detector API returns a String containing the predicted class:</p>
-  </div>
-  </body>
+    <p>The Classes are: {d10, d12, d20, d4, d6, d8}</p>
+    <input class="choose-file-button" type="button" onclick="location.href='/upload';" value="Go to Uploader" />
+</div>
+<div class="footer center" style="clear: both">
+    <p id="copyright">©</p>
+</div>
+<script>
+    const year = new Date().getFullYear();
+    $("#copyright").text('© ' + year + ' — Jason Gedamke. All Rights Reserved');
+</script>
+</body>
 </html>
