@@ -8,7 +8,7 @@ simplejson==3.16.0
 Werkzeug==3.0.3
 numpy==1.22.0
 pandas==0.24.2
-scikit-learn==0.21.3
+scikit-learn==1.5.0
 scipy==1.10.0
 requests==2.32.0
 gunicorn==22.0.0
